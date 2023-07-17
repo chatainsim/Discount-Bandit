@@ -7,7 +7,7 @@ fi
 
 if [ ! -f ".env" ]; then
     echo "Copying Environment File"
-    cp .env.example .env
+    sudo -u www-data cp .env.example .env
 fi
 
 php artisan migrate --seed

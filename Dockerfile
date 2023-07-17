@@ -23,6 +23,9 @@ RUN apt-get install -y \
     supervisor \
     sudo
 
+
+
+
 # 2. apache configs + document root
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/discount-bandit/public
 ENV APACHE_RUN_DIR=/var/run/apache2
@@ -31,8 +34,6 @@ ENV APACHE_LOCK_DIR=/var/lock/apache2
 ENV APACHE_LOG_DIR=/var/log/apache2
 ENV APACHE_RUN_GROUP=www-data
 ENV APACHE_RUN_USER=www-data
-
-
 
 
 ENV DB_HOST=mysql
@@ -44,12 +45,12 @@ ENV APP_ENV=prod
 ENV DB_PASSWORD=banditPassword
 ENV MYSQL_ROOT_PASSWORD=StrongPassword
 ENV MAIL_MAILER=smtp
-ENV  MAIL_HOST=smtp.gmail.com
-ENV  MAIL_PORT=465
-ENV  MAIL_USERNAME=yournewemail@gmail.com
-ENV  MAIL_PASSWORD=VeryCompliatedPassword
-ENV  MAIL_ENCRYPTION=tls
-ENV  MAIL_FROM_ADDRESS=yournewemail@gmail.com
+ENV MAIL_HOST=smtp.gmail.com
+ENV MAIL_PORT=465
+ENV MAIL_USERNAME=yournewemail@gmail.com
+ENV MAIL_PASSWORD=VeryCompliatedPassword
+ENV MAIL_ENCRYPTION=tls
+ENV MAIL_FROM_ADDRESS=yournewemail@gmail.com
 ENV MAIL_FROM_NAME=${APP_NAME}
 ENV ALLOW_REF=0
 
@@ -83,19 +84,20 @@ RUN crontab -l | { cat; echo "* * * * *  cd /var/www/html/discount-bandit/ &&  /
 RUN crontab -l | { cat; echo "* * * * *   cd /var/www/html/discount-bandit/ && /usr/local/bin/php /var/www/html/discount-bandit/artisan schedule:run >> /var/log/cron-test.log 2>&1"; } | crontab -
 
 
-COPY Docker/supervisord.conf /etc/supervisor/supervisord.conf
+#COPY Docker/supervisord.conf /etc/supervisor/supervisord.conf
 
 
 WORKDIR /var/www/html
-
-RUN sudo -u www-data mkdir discount-bandit
+#
+RUN sudo chown -R www-data discount-bandit
+#
+RUN sudo -u www-data git clone https://github.com/Cybrarist/discount-bandit.git discount-bandit/temp
 
 WORKDIR /var/www/html/discount-bandit
 
-COPY   --chown=www-data:www-data . .
+RUN sudo -u www-data mv temp/*.* .
+RUN sudo -u www-data mv temp/* .
 
-RUN #chmod +x ./Docker/*.sh
-#
-ENTRYPOINT ["./Docker/entrypoint.sh"]
+ENTRYPOINT ["Docker/entrypoint.sh"]
 
 
